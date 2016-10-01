@@ -11,14 +11,14 @@
 
 # In[ ]:
 
-import os, urllib
 from __future__ import print_function
+import os, urllib
 import pycs
 import numpy as np
 import corner
 from matplotlib import pyplot as plt
-get_ipython().magic(u'matplotlib inline')
-
+import matplotlib
+matplotlib.use('Agg')
 
 # We need to grab `rdbfile` (the demo1 dataset) from `webdir` (the appropriate `PyCS` GitHub folder). We only need to download `rdbfile` if it doesn't already exist.
 
@@ -31,8 +31,6 @@ url = os.path.join(webdir, rdbfile)
 if not os.path.isfile(rdbfile):
     urllib.urlretrieve(url, rdbfile)
     
-get_ipython().system(u'wc -l $rdbfile')
-
 
 # ## 2. Displaying the Light Curve Data
 
@@ -55,10 +53,6 @@ pycs.gen.mrg.colourise(lcs)
 
 # In[ ]:
 
-pycs.gen.lc.display(lcs)
-
-
-# In[ ]:
 
 def spl(lcs):
    spline = pycs.spl.topopt.opt_rough(lcs, nit=5, knotstep=50,verbose=False)
@@ -69,40 +63,10 @@ def spl(lcs):
 
 # In[ ]:
 
-for l in lcs:
-    pycs.gen.splml.addtolc(l,knotstep=150)
 
-
-# Let's re-optimize and see what happens to the time delays:
-
-# In[ ]:
-
-spline = spl(lcs)
-
-
-# In[ ]:
-
-spline_microlensing_time_delays = pycs.gen.lc.getnicetimedelays(lcs, separator="\n", sorted=True)
-print("Time Delays (microlensing included, with splines):")
-print(spline_microlensing_time_delays)
-
-
-# In[ ]:
-
-pycs.gen.lc.display(lcs, [spline], knotsize=0.01, figsize=(20, 7), jdrange=(53900, 55500))
-
-
-# In[ ]:
-
-ndim, nsamples = 3, 10
+ndim, nsamples = 3, 1000
 sample=np.random.rand(ndim*nsamples).reshape(nsamples,ndim)*200-100
 
-
-# In[ ]:
-
-get_ipython().magic(u'time')
-fig=corner.corner(sample,labels=[r'$\Delta t_{AB}$',r'$\Delta t_{AC}$',r'$\Delta t_{AD}$'],
-                  levels=[0.30,0.40],plot_contours=False,plot_density=False)
 
 
 # In[ ]:
@@ -121,16 +85,9 @@ def getWeight(delay):
 
 # In[ ]:
 
-get_ipython().run_cell_magic(u'time', u'', u'from multiprocessing import Pool\np = Pool(processes=3)\nresult=np.array(p.map(getWeight,sample))')
+from multiprocessing import Pool
+p = Pool(processes=10)
+result=np.array(p.map(getWeight,sample))
 
-
-# In[ ]:
-
-get_ipython().run_cell_magic(u'time', u'', u'weight=[]\nfor delay in sample:\n    weight.append(getWeight(delay))')
-
-
-# In[ ]:
-
-fig=corner.corner(sample,labels=[r'$\Delta t_{AB}$',r'$\Delta t_{AC}$',r'$\Delta t_{AD}$'],
-                  levels=[0.9,0.95],plot_contours=False,plot_density=False,weight=result)
-
+np.save("sample.npy",sample)
+np.save("weight.npy",result)
