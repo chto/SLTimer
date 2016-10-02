@@ -55,9 +55,9 @@ pycs.gen.mrg.colourise(lcs)
 
 
 def spl(lcs):
-   spline = pycs.spl.topopt.opt_rough(lcs, nit=5, knotstep=50,verbose=False)
-   spline = pycs.spl.topopt.opt_rough(lcs, nit=5, knotstep=30,verbose=False)
-   spline = pycs.spl.topopt.opt_fine(lcs, nit=10, knotstep=20,verbose=False)
+   spline = pycs.spl.topopt.opt_rough(lcs, nit=5, knotstep=50,verbose=False,shifttime=False)
+   spline = pycs.spl.topopt.opt_rough(lcs, nit=5, knotstep=30,verbose=False,shifttime=False)
+   spline = pycs.spl.topopt.opt_fine(lcs, nit=10, knotstep=20,verbose=False,shifttime=False)
    return spline
 
 
@@ -80,14 +80,14 @@ def getWeight(delay):
         if index!=0:
             l.timeshift=delay[index-1]
     spline = spl(lcs)
-    return np.exp(-0.5*spline.lastr2nostab)
+    return spline.lastr2nostab
 
 
 # In[ ]:
 
 from multiprocessing import Pool
-p = Pool(processes=10)
+p = Pool(processes=5)
 result=np.array(p.map(getWeight,sample))
 
 np.save("sample.npy",sample)
-np.save("weight.npy",result)
+np.save("chisquare.npy",result)
