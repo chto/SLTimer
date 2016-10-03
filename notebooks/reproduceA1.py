@@ -64,7 +64,7 @@ def spl(lcs):
 # In[ ]:
 
 
-ndim, nsamples = 3, 1000
+ndim, nsamples = 3, 10000
 sample=np.random.rand(ndim*nsamples).reshape(nsamples,ndim)*200-100
 
 
@@ -86,8 +86,8 @@ def getWeight(delay):
 # In[ ]:
 
 from multiprocessing import Pool
-p = Pool(processes=5)
+p = Pool(processes=7)
 result=np.array(p.map(getWeight,sample))
 
-np.save("sample.npy",sample)
-np.save("chisquare.npy",result)
+np.save("sample-100-100.npy",sample)
+np.save("chisquare-100-100.npy",result)
